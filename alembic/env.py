@@ -18,7 +18,10 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 # Set target_metadata so Alembic automatically detects table changes
-target_metadata = Base.metadata
+from app.database import metadata
+import app.models  # Required to load table definitions
+
+target_metadata = metadata
 
 
 def run_migrations_offline() -> None:

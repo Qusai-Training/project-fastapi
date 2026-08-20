@@ -1,17 +1,10 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy import create_engine, MetaData
 
-# Update username, password, host, port, and db_name with your PostgreSQL credentials
 SQLALCHEMY_DATABASE_URL = "postgresql://postgres:123456@localhost:5432/project_fastapi"
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-Base = declarative_base()
+metadata = MetaData()
 
 def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+    with engine.connect() as connection:
+        yield connection

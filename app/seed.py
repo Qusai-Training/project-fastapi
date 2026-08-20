@@ -1,67 +1,45 @@
-# seed.py
-from app.database import SessionLocal, engine
-from app.models import Base, CourseModel, StudentModel
+from sqlalchemy import insert, delete
+from app.database import engine, metadata
+from app.models import courses, students
 
 def seed_database():
-    # Ensure tables exist in PostgreSQL
-    Base.metadata.create_all(bind=engine)
+    metadata.create_all(bind=engine)
     
-    db = SessionLocal()
-    try:
+    with engine.connect() as conn:
         print("Clearing old records...")
-        db.query(CourseModel).delete()
-        db.query(StudentModel).delete()
-        db.commit()
+        conn.execute(delete(courses))
+        conn.execute(delete(students))
+        conn.commit()
 
         print("Inserting seed data...")
-        # Add or modify course records here
-        courses = [
-            CourseModel(
-                title="FastAPI Fundamentals",
-                description="Modern REST API development with Python and Pydantic",
-                credits=4,
-            ),
-            CourseModel(
-                title="Database Architecture",
-                description="Relational database design using PostgreSQL and SQLAlchemy",
-                credits=3,
-            ),
-            CourseModel(
-                title="Web Security & Auth",
-                description="JWT authentication and rate limiting mechanisms",
-                credits=3,
-            ),
-        ]
+        conn.execute(insert(courses), [
+            {
+                "title": "FastAPI Fundamentals",
+                "description": "Modern REST API development with Python and Pydantic",
+                "credits": 4,
+            },
+            {
+                "title": "Database Architecture",
+                "description": "Relational database design using PostgreSQL and SQLAlchemy",
+                "credits": 3,
+            },
+        ])
 
-        # Add or modify student records here
-        students = [
-            StudentModel(
-                name="Alice Smith",
-                email="alice@example.com",
-                is_active=True,
-            ),
-            StudentModel(
-                name="Bob Jones",
-                email="bob@example.com",
-                is_active=True,
-            ),
-            StudentModel(
-                name="Charlie Brown",
-                email="charlie@example.com",
-                is_active=False,
-            ),
-        ]
+        conn.execute(insert(students), [
+            {
+                "name": "Alice Smith",
+                "email": "alice@example.com",
+                "is_active": True,
+            },
+            {
+                "name": "Bob Jones",
+                "email": "bob@example.com",
+                "is_active": True,
+            },
+        ])
 
-        db.add_all(courses)
-        db.add_all(students)
-        db.commit()
-        print("Database successfully seeded!")
-
-    except Exception as e:
-        print(f"Error during seeding: {e}")
-        db.rollback()
-    finally:
-        db.close()
+        conn.commit()
+        print("Database successfully seeded using SQLAlchemy Core!")
 
 if __name__ == "__main__":
     seed_database()

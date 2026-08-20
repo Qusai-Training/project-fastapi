@@ -1,18 +1,20 @@
-from sqlalchemy import Column, Integer, String, Boolean
-from app.database import Base
+from sqlalchemy import Table, Column, Integer, String, Boolean
+from app.database import metadata
 
-class CourseModel(Base):
-    __tablename__ = "courses"
+courses = Table(
+    "courses",
+    metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("title", String, nullable=False),
+    Column("description", String, nullable=True),
+    Column("credits", Integer, nullable=False),
+)
 
-    id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, nullable=False)
-    description = Column(String, nullable=True)
-    credits = Column(Integer, nullable=False)
-
-class StudentModel(Base):
-    __tablename__ = "students"
-
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, nullable=False)
-    email = Column(String, unique=True, nullable=False)
-    is_active = Column(Boolean, default=True)
+students = Table(
+    "students",
+    metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("name", String, nullable=False),
+    Column("email", String, unique=True, nullable=False),
+    Column("is_active", Boolean, default=True),
+)
